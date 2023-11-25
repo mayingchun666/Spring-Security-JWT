@@ -1,4 +1,4 @@
-package com.myc.boot.service;
+package com.myc.boot.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;

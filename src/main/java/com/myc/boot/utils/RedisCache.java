@@ -1,5 +1,6 @@
 package com.myc.boot.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.HashOperations;
@@ -73,6 +74,21 @@ public class RedisCache {
     public <T> T getCacheObject(final String key) {
         ValueOperations<String, T> operation = redisTemplate.opsForValue();
         return operation.get(key);
+    }
+
+    /**
+     * 获取缓存对象
+     * @param key
+     * @param clazz
+     * @return
+     * @param <T>
+     */
+    public <T> T getCacheObject(final String key, Class<T> clazz) {
+        JSONObject cacheValue = (JSONObject) redisTemplate.opsForValue().get(key);
+        if(cacheValue == null){
+            return null;
+        }
+        return cacheValue.toJavaObject(clazz);
     }
 
     /**
