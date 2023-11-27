@@ -1,6 +1,7 @@
 package com.myc.boot;
 
 import com.myc.boot.domain.User;
+import com.myc.boot.mapper.MenuMapper;
 import com.myc.boot.mapper.UserMapper;
 import com.myc.boot.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -16,6 +17,9 @@ class Boot2ApplicationTests {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private MenuMapper menuMapper;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -47,6 +51,12 @@ class Boot2ApplicationTests {
 
         List<User> users = userMapper.selectList(null);
         System.out.println(users);
+    }
+
+    @Test
+    void selectMenuPermsByUserId() {
+        List<String> strings = menuMapper.selectMenuPermsByUserId(3L);
+        System.out.println(strings);
     }
 
 }

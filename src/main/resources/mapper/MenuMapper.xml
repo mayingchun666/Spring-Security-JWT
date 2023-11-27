@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myc.boot.mapper.MenuMapper">
+    <select id="selectMenuPermsByUserId" resultType="string">
+        select
+        distinct sm.perms
+        from
+        sys_user_role sur
+        left join sys_role sr on
+        sr.id = sur.role_id
+        left join sys_role_menu srm on
+        srm.role_id = sr.id
+        left join sys_menu sm on
+        sm.id = srm.menu_id
+        where
+        sur.user_id = #{userId}
+        and sr.status = 0
+        and sm.status = 0
+    </select>
+</mapper>

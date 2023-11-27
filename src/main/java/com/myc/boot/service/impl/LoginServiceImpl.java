@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class LoginServiceImpl implements LoginService {
 
         // 登录
         Authentication authentication = authenticationManager.authenticate(token);
-        if(authentication == null){
+        if (authentication == null) {
             throw new RuntimeException("用户名或密码错误");
         }
 
@@ -47,5 +48,17 @@ public class LoginServiceImpl implements LoginService {
         HashMap map = new HashMap();
         map.put("token", jwt);
         return new ResponseResult(200, "登录成功", map);
+    }
+
+
+    @Override
+    public ResponseResult logout() {
+        // SecurityContextHolder中获取用户信息
+        LoginUserDetails loginUserDetails = (LoginUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String useId = loginUserDetails.getUser().getId().toString();
+        // redis删除用户信息
+        redisCache.deleteObject("token_" + useId);
+
+        return new ResponseResult(200, "退出成功");
     }
 }
