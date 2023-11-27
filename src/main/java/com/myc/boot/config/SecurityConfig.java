@@ -1,6 +1,8 @@
 package com.myc.boot.config;
 
 import com.myc.boot.filter.JwtAuthenticationFilter;
+import com.myc.boot.service.impl.CustomAccessDeniedHandler;
+import com.myc.boot.service.impl.CustomAuthenticationFailureHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Autowired
+    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+
+    @Autowired
+    private CustomAccessDeniedHandler customAccessDeniedHandler;
+
 
 
     @Bean
@@ -43,5 +52,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         // 过滤器设置
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // 设置异常 登录异常和权限不足异常
+        http.exceptionHandling().authenticationEntryPoint(customAuthenticationFailureHandler).accessDeniedHandler(customAccessDeniedHandler);
+
     }
 }
