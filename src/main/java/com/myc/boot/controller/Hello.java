@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class Hello {
 
     @GetMapping("/hello")
-    @PreAuthorize("hasAuthority('sys:dept:list')")
+    // spel表达式，@ss是自定义的注解，@ss是@PreAuthorize的别名
+    @PreAuthorize("@ss.hasAuthority('sys:dept:list')")
     public String hello() {
         return "hello";
     }

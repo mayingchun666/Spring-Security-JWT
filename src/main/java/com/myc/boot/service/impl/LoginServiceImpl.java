@@ -29,7 +29,7 @@ public class LoginServiceImpl implements LoginService {
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUserName(), user.getPassword());
 
-        // 登录
+        // 登录 默认会调用UserDetailServiceImpl.loadUserByUsername
         Authentication authentication = authenticationManager.authenticate(token);
         if (authentication == null) {
             throw new RuntimeException("用户名或密码错误");

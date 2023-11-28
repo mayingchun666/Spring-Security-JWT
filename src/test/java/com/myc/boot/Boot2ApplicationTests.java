@@ -1,7 +1,9 @@
 package com.myc.boot;
 
+import com.myc.boot.domain.Tree;
 import com.myc.boot.domain.User;
 import com.myc.boot.mapper.MenuMapper;
+import com.myc.boot.mapper.TreeMapper;
 import com.myc.boot.mapper.UserMapper;
 import com.myc.boot.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -10,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 class Boot2ApplicationTests {
@@ -24,6 +28,8 @@ class Boot2ApplicationTests {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TreeMapper treeMapper;
 
 
     @Test
@@ -57,6 +63,66 @@ class Boot2ApplicationTests {
     void selectMenuPermsByUserId() {
         List<String> strings = menuMapper.selectMenuPermsByUserId(3L);
         System.out.println(strings);
+    }
+
+    @Test
+    void testTree() {
+        // 所有值
+        List<Tree> trees = treeMapper.selectList(null);
+
+        // 所有省
+        List<Tree> collectByOne = trees.stream().filter(tree -> tree.getPid() == null).collect(Collectors.toList());
+
+        // 所有市
+        List<Tree> collectByTwo = new ArrayList<>();
+
+        for (Tree tree : collectByOne) {
+            List<Tree> collect = trees.stream().filter(t -> t.getPid() != null && t.getPid().equals(tree.getId())).collect(Collectors.toList());
+            collectByTwo.addAll(collect);
+        }
+
+        // 所有区
+        List<Tree> collectByThree = new ArrayList<>();
+
+        for (Tree tree : collectByTwo) {
+            List<Tree> collect = trees.stream().filter(t -> t.getPid() != null && t.getPid().equals(tree.getId())).collect(Collectors.toList());
+            collectByThree.addAll(collect);
+        }
+
+
+        for (Tree one : collectByOne) {
+            // 获取省下的市
+            List<Tree> collect = collectByTwo.stream().filter(t -> t.getPid() != null && t.getPid().equals(one.getId())).collect(Collectors.toList());
+
+            // collect中是否存在name以同级别市结尾的
+            boolean b = collect.stream().anyMatch(t -> t.getName().endsWith("同级别市"));
+
+            if (!collect.isEmpty() && !b) {
+                // 有值，添加市
+                Tree tree = new Tree();
+                tree.setPid(one.getId());
+                tree.setName(collect.get(0).getName() + "同级别市");
+                treeMapper.insertTree(tree);
+            }
+        }
+
+        for (Tree two : collectByTwo) {
+            // 获取市下的区
+            List<Tree> collect = collectByThree.stream().filter(t -> t.getPid() != null && t.getPid().equals(two.getId())).collect(Collectors.toList());
+
+            // collect中是否存在name以同级别区结尾的
+            boolean b = collect.stream().anyMatch(t -> t.getName().endsWith("同级别区"));
+
+
+            if (!collect.isEmpty() && !b) {
+                // 有值，添加区
+                Tree tree = new Tree();
+                tree.setPid(two.getId());
+                tree.setName(collect.get(0).getName() + "同级别区");
+                treeMapper.insertTree(tree);
+            }
+        }
+
     }
 
 }
