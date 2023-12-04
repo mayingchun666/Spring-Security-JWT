@@ -5,9 +5,12 @@ import com.myc.boot.domain.User;
 import com.myc.boot.mapper.MenuMapper;
 import com.myc.boot.mapper.TreeMapper;
 import com.myc.boot.mapper.UserMapper;
+import com.myc.boot.quartz.HelloJob;
 import com.myc.boot.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -123,6 +126,34 @@ class Boot2ApplicationTests {
             }
         }
 
+    }
+
+    @Test
+    void testQuartz() throws SchedulerException {
+
+        Scheduler defaultScheduler = StdSchedulerFactory.getDefaultScheduler();
+
+        defaultScheduler.start();
+
+        // jobDetail
+        JobDetail build = JobBuilder.newJob(HelloJob.class).build();
+
+        // trigger
+        SimpleTrigger build1 = TriggerBuilder.newTrigger().withIdentity("trigger1", "group1")
+                .startNow()
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(5).repeatForever())
+                .build();
+
+        defaultScheduler.scheduleJob(build, build1);
+
+        // sleep 10分钟
+        try {
+            Thread.sleep(1000 * 60 * 10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        defaultScheduler.shutdown();
     }
 
 }
